@@ -9,10 +9,9 @@ object StructuredQueryBuilder {
 
     override def toString = query
 
-    def and(terms: StructuredTerm*): StructuredTerm = terms match {
-      case Nil => this
-      case first +: Nil if first == StructuredQuery.empty => this
-      case _ => StructuredQueryBuilder.and(Nil, this +: terms)
+    def and(term: StructuredTerm): StructuredTerm = term match {
+      case StructuredQuery.empty => this
+      case _ => StructuredQueryBuilder.and(Nil, Seq(this, term))
     }
   }
 
