@@ -81,13 +81,52 @@ object StructuredQueryBuilder {
   def gtlt[A](from: Option[A], to: Option[A]): RangeValue[A] =
     RangeValue[A](containsMin = false, from, to, containsMax = false)
 
-  def gelt[A](from: Option[A], to: Option[A]): RangeValue[A] =
+  def gelt[A](from: Option[A], to: Option[A]): RangeValue[A] = from match {
+    case Some(_) => rawGelt(from, to)
+    case None => gtlt(None, to)
+  }
+
+  def gtle[A](from: Option[A], to: Option[A]): RangeValue[A] = to match {
+    case Some(_) => rawGtle(from, to)
+    case None => gtlt(None, to)
+  }
+
+  def gele[A](from: Option[A], to: Option[A]): RangeValue[A] = (from, to) match {
+    case (Some(_), Some(_)) => rawGele(from, to)
+    case (None, _) => gtlt(None, to)
+    case (_, None) => gelt(from, None)
+  }
+
+  /**
+    * If from is empty, it returns com.amazonaws.services.cloudsearchdomain.model.SearchException.
+    * @param from
+    * @param to
+    * @tparam A
+    * @return
+    */
+  def rawGelt[A](from: Option[A], to: Option[A]): RangeValue[A] =
     RangeValue[A](containsMin = true, from, to, containsMax = false)
 
-  def gtle[A](from: Option[A], to: Option[A]): RangeValue[A] =
+
+  /**
+    * If to is empty, it returns com.amazonaws.services.cloudsearchdomain.model.SearchException.
+    * @param from
+    * @param to
+    * @tparam A
+    * @return
+    */
+  def rawGtle[A](from: Option[A], to: Option[A]): RangeValue[A] =
     RangeValue[A](containsMin = false, from, to, containsMax = true)
 
-  def gele[A](from: Option[A], to: Option[A]): RangeValue[A] =
+
+  /**
+    * If either from or to is empty, it returns com.amazonaws.services.cloudsearchdomain.model.SearchException.
+    * @param from
+    * @param to
+    * @tparam A
+    * @return
+    */
+  def rawGele[A](from: Option[A], to: Option[A]): RangeValue[A] =
     RangeValue[A](containsMin = true, from, to, containsMax = true)
 
   def field(key: String): StructuredOption = StructuredOption(s"field=$key")
