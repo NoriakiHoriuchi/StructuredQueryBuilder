@@ -22,7 +22,15 @@ object StructuredQueryBuilder {
   }
 
   case class StructuredOption(query: String) {
+    def :+(next: StructuredOption) = s"$query ${next.query}"
+
+    def +:(next: StructuredOption) = s"$query ${next.query}"
+
     override def toString = query
+  }
+
+  object StructuredOption {
+    val empty = StructuredOption("")
   }
 
   def and(options: Seq[StructuredOption] = Nil, terms: Seq[StructuredTerm]): StructuredTerm =
