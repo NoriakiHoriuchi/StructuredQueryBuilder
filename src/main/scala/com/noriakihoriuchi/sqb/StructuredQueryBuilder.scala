@@ -8,9 +8,19 @@ object StructuredQueryBuilder {
     def build = query
 
     override def toString = query
+
+    def and(terms: StructuredTerm*): StructuredTerm = terms match {
+      case Nil => this
+      case first +: Nil if first == StructuredQuery.empty => this
+      case _ => StructuredQueryBuilder.and(Nil, this +: terms)
+    }
   }
 
   case class StructuredQuery(query: String) extends StructuredTerm(query)
+
+  object StructuredQuery {
+    val empty = StructuredQuery("")
+  }
 
   case class StructuredOption(query: String) {
     override def toString = query
