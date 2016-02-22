@@ -4,7 +4,7 @@
 Put the code below into `build.sbt`.
 
 ```
-libraryDependencies +=  "com.noriakihoriuchi" %% "structuredquerybuilder" % "0.0.1"
+libraryDependencies +=  "com.noriakihoriuchi" %% "structured-query-builder" % "0.0.2"
 
 resolvers += "com.noriakihoriuchi" at "http://NoriakiHoriuchi.github.io/StructuredQueryBuilder"
 ```
