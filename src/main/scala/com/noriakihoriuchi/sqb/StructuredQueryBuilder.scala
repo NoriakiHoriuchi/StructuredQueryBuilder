@@ -116,6 +116,9 @@ object StructuredQueryBuilder {
     implicit def stringToStructuredTerm(value: String): StructuredTerm =
       StructuredQuery(s"'$value'")
 
+    implicit def seqStringToSeqStructuredTerm(value: Seq[String]): StructuredTerm =
+      and(Nil, value.map(v => StructuredQuery(s"'$v'")))
+
     implicit def intToStructuredTerm(value: Int): StructuredTerm =
       StructuredQuery(s"$value")
 
