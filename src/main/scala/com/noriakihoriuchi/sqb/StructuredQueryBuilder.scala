@@ -4,21 +4,19 @@ import org.joda.time.{DateTime, DateTimeZone}
 
 object StructuredQueryBuilder {
 
-  abstract class StructuredTerm(query: String) {
+  case class StructuredTerm(query: String) {
     def build = query
 
     override def toString = query
 
     def and(term: StructuredTerm): StructuredTerm = term match {
-      case StructuredQuery.empty => this
+      case StructuredTerm.empty => this
       case _ => StructuredQueryBuilder.and(terms = Seq(this, term))
     }
   }
 
-  case class StructuredQuery(query: String) extends StructuredTerm(query)
-
-  object StructuredQuery {
-    val empty = StructuredQuery("")
+  object StructuredTerm {
+    val empty = StructuredTerm("")
   }
 
   case class StructuredOption(query: String) {
@@ -33,7 +31,7 @@ object StructuredQueryBuilder {
     val empty = StructuredOption("")
   }
 
-  def and(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm] = Nil): StructuredTerm =
+  def and(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm =
     operator("and", option, terms)
 
   def not(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm =
@@ -42,7 +40,7 @@ object StructuredQueryBuilder {
   def or(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm =
     operator("or", option, terms)
 
-  def matchall = StructuredQuery("matchall")
+  def matchall = StructuredTerm("matchall")
 
   def near(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm =
     operator("near", option, terms)
@@ -57,7 +55,7 @@ object StructuredQueryBuilder {
     val optionString = if (option.query.nonEmpty) {
       option.query + " "
     } else ""
-    StructuredQuery(s"(range field=$field $optionString${range.query})")
+    StructuredTerm(s"(range field=$field $optionString${range.query})")
   }
 
   def term(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm =
@@ -68,9 +66,9 @@ object StructuredQueryBuilder {
       option.query + " "
     } else ""
     terms match {
-      case Nil => StructuredQuery.empty
+      case Nil => StructuredTerm.empty
       case _ => {
-        StructuredQuery(s"($op $optionString${terms.mkString(" ")})")
+        StructuredTerm(s"($op $optionString${terms.mkString(" ")})")
       }
     }
   }
@@ -149,37 +147,37 @@ object StructuredQueryBuilder {
 
   object Implicits {
     implicit def stringValueTuple2ToField(tuple2: (String, String)): StructuredTerm =
-      StructuredQuery(s"${tuple2._1}:'${tuple2._2}'")
+      StructuredTerm(s"${tuple2._1}:'${tuple2._2}'")
 
     implicit def intValueTuple2ToField(tuple2: (String, Int)): StructuredTerm =
-      StructuredQuery(s"${tuple2._1}:${tuple2._2}")
+      StructuredTerm(s"${tuple2._1}:${tuple2._2}")
 
     implicit def doubleValueTuple2ToField(tuple2: (String, Double)): StructuredTerm =
-      StructuredQuery(s"${tuple2._1}:${tuple2._2}")
+      StructuredTerm(s"${tuple2._1}:${tuple2._2}")
 
     implicit def bigDecimalValueTuple2ToField(tuple2: (String, BigDecimal)): StructuredTerm =
-      StructuredQuery(s"${tuple2._1}:${tuple2._2}")
+      StructuredTerm(s"${tuple2._1}:${tuple2._2}")
 
     implicit def dateTimeValueTuple2ToField(tuple2: (String, DateTime)): StructuredTerm =
-      StructuredQuery(s"${tuple2._1}:'${tuple2._2.withZone(DateTimeZone.UTC).toString}'")
+      StructuredTerm(s"${tuple2._1}:'${tuple2._2.withZone(DateTimeZone.UTC).toString}'")
 
     implicit def stringToStructuredTerm(value: String): StructuredTerm =
-      StructuredQuery(s"'$value'")
+      StructuredTerm(s"'$value'")
 
     implicit def seqStringToSeqStructuredTerm(value: Seq[String]): StructuredTerm =
-      and(terms = value.map(v => StructuredQuery(s"'$v'")))
+      and(terms = value.map(v => StructuredTerm(s"'$v'")))
 
     implicit def intToStructuredTerm(value: Int): StructuredTerm =
-      StructuredQuery(s"$value")
+      StructuredTerm(s"$value")
 
     implicit def doubleToStructuredTerm(value: Double): StructuredTerm =
-      StructuredQuery(s"$value")
+      StructuredTerm(s"$value")
 
     implicit def bigDecimalToStructuredTerm(value: BigDecimal): StructuredTerm =
-      StructuredQuery(s"$value")
+      StructuredTerm(s"$value")
 
     implicit def dateTimeToStructuredTerm(value: DateTime): StructuredTerm =
-      StructuredQuery(s"'${value.withZone(DateTimeZone.UTC).toString}'")
+      StructuredTerm(s"'${value.withZone(DateTimeZone.UTC).toString}'")
   }
 
 }
