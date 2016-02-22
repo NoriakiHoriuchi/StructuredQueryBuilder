@@ -11,7 +11,7 @@ object StructuredQueryBuilder {
 
     def and(term: StructuredTerm): StructuredTerm = term match {
       case StructuredQuery.empty => this
-      case _ => StructuredQueryBuilder.and(Nil, Seq(this, term))
+      case _ => StructuredQueryBuilder.and(terms = Seq(this, term))
     }
   }
 
@@ -22,9 +22,9 @@ object StructuredQueryBuilder {
   }
 
   case class StructuredOption(query: String) {
-    def :+(next: StructuredOption) = s"$query ${next.query}"
+    def :+(next: StructuredOption) = StructuredOption(s"$query ${next.query}")
 
-    def +:(next: StructuredOption) = s"$query ${next.query}"
+    def +:(next: StructuredOption) = StructuredOption(s"$query ${next.query}")
 
     override def toString = query
   }
@@ -33,44 +33,44 @@ object StructuredQueryBuilder {
     val empty = StructuredOption("")
   }
 
-  def and(options: Seq[StructuredOption] = Nil, terms: Seq[StructuredTerm]): StructuredTerm =
-    operator("and", options, terms)
+  def and(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm] = Nil): StructuredTerm =
+    operator("and", option, terms)
 
-  def not(options: Seq[StructuredOption] = Nil, terms: Seq[StructuredTerm]): StructuredTerm =
-    operator("not", options, terms)
+  def not(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm =
+    operator("not", option, terms)
 
-  def or(options: Seq[StructuredOption] = Nil, terms: Seq[StructuredTerm]): StructuredTerm =
-    operator("or", options, terms)
+  def or(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm =
+    operator("or", option, terms)
 
   def matchall = StructuredQuery("matchall")
 
-  def near(options: Seq[StructuredOption] = Nil, terms: Seq[StructuredTerm]): StructuredTerm =
-    operator("near", options, terms)
+  def near(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm =
+    operator("near", option, terms)
 
-  def prefix(options: Seq[StructuredOption] = Nil, terms: Seq[StructuredTerm]): StructuredTerm =
-    operator("prefix", options, terms)
+  def prefix(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm =
+    operator("prefix", option, terms)
 
-  def phase(options: Seq[StructuredOption] = Nil, terms: Seq[StructuredTerm]): StructuredTerm =
-    operator("phase", options, terms)
+  def phase(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm =
+    operator("phase", option, terms)
 
-  def range[A](field: String, options: Seq[StructuredOption] = Nil, range: RangeValue[A]): StructuredTerm = {
-    val optionsString = if (options.nonEmpty) {
-      options.mkString(" ") + " "
+  def range[A](field: String, option: StructuredOption = StructuredOption.empty, range: RangeValue[A]): StructuredTerm = {
+    val optionString = if (option.query.nonEmpty) {
+      option.query + " "
     } else ""
-    StructuredQuery(s"(range field=$field $optionsString${range.query})")
+    StructuredQuery(s"(range field=$field $optionString${range.query})")
   }
 
-  def term(options: Seq[StructuredOption] = Nil, terms: Seq[StructuredTerm]): StructuredTerm =
-    operator("term", options, terms)
+  def term(option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm =
+    operator("term", option, terms)
 
-  private def operator(op: String, options: Seq[StructuredOption] = Nil, terms: Seq[StructuredTerm]): StructuredTerm = {
-    val optionsString = if (options.nonEmpty) {
-      options.mkString(" ") + " "
+  private def operator(op: String, option: StructuredOption = StructuredOption.empty, terms: Seq[StructuredTerm]): StructuredTerm = {
+    val optionString = if (option.query.nonEmpty) {
+      option.query + " "
     } else ""
     terms match {
       case Nil => StructuredQuery.empty
       case _ => {
-        StructuredQuery(s"($op $optionsString${terms.mkString(" ")})")
+        StructuredQuery(s"($op $optionString${terms.mkString(" ")})")
       }
     }
   }
@@ -167,7 +167,7 @@ object StructuredQueryBuilder {
       StructuredQuery(s"'$value'")
 
     implicit def seqStringToSeqStructuredTerm(value: Seq[String]): StructuredTerm =
-      and(Nil, value.map(v => StructuredQuery(s"'$v'")))
+      and(terms = value.map(v => StructuredQuery(s"'$v'")))
 
     implicit def intToStructuredTerm(value: Int): StructuredTerm =
       StructuredQuery(s"$value")
