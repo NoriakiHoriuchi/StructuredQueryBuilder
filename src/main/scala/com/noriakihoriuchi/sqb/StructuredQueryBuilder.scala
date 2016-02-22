@@ -59,8 +59,12 @@ object StructuredQueryBuilder {
     val optionsString = if (options.nonEmpty) {
       options.mkString(" ") + " "
     } else ""
-    val termsString = terms.mkString(" ")
-    StructuredQuery(s"($op $optionsString$termsString)")
+    terms match {
+      case Nil => StructuredQuery.empty
+      case _ => {
+        StructuredQuery(s"($op $optionsString${terms.mkString(" ")})")
+      }
+    }
   }
 
   private def stringify[A](opt: Option[A]) = opt match {
