@@ -140,6 +140,15 @@ object StructuredQueryBuilder {
   def distance(value: Int): StructuredOption = StructuredOption(s"distance=$value")
 
   object Implicits {
+
+    /**
+      * 文字列のシングルクォートとバックスラッシュをエスケープしたクエリ用の文字列を返す
+      * https://docs.aws.amazon.com/ja_jp/cloudsearch/latest/developerguide/search-api.html
+      */
+    private def escapedString(str: String) = {
+      s"'${str.replaceAll("""('|\\)""", """\\$1""")}'"
+    }
+
     implicit def stringValueTuple2ToField(tuple2: (String, String)): StructuredTerm =
       StructuredQuery(s"${tuple2._1}:'${tuple2._2}'")
 
@@ -159,10 +168,10 @@ object StructuredQueryBuilder {
       StructuredQuery(s"${tuple2._1}:'${tuple2._2.withZone(DateTimeZone.UTC).toString}'")
 
     implicit def stringToStructuredTerm(value: String): StructuredTerm =
-      StructuredQuery(s"'$value'")
+      StructuredQuery(escapedString(value))
 
-    implicit def seqStringToSeqStructuredTerm(value: Seq[String]): StructuredTerm =
-      and(Nil, value.map(v => StructuredQuery(s"'$v'")))
+    implicit def seqStringToSeqStructuredTerm(values: Seq[String]): StructuredTerm =
+      and(Nil, values.map(v => StructuredQuery(escapedString(v))))
 
     implicit def intToStructuredTerm(value: Int): StructuredTerm =
       StructuredQuery(s"$value")
