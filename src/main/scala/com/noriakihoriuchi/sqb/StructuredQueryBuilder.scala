@@ -2,6 +2,11 @@ package com.noriakihoriuchi.sqb
 
 import org.joda.time.{DateTime, DateTimeZone}
 
+import scala.language.implicitConversions
+
+/**
+  * StructuredQueryBuilder for Amazon CloudSearch.
+  */
 object StructuredQueryBuilder {
 
   abstract class StructuredTerm(query: String) {
