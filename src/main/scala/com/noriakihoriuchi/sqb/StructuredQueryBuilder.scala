@@ -97,7 +97,7 @@ object StructuredQueryBuilder {
 
   def gele[A](from: Option[A], to: Option[A]): RangeValue[A] = (from, to) match {
     case (Some(_), Some(_)) => rawGele(from, to)
-    case (None, _) => gtlt(None, to)
+    case (None, _) => gtle(None, to)
     case (_, None) => gelt(from, None)
   }
 
