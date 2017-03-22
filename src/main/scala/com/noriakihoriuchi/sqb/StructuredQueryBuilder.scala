@@ -181,6 +181,28 @@ object StructuredQueryBuilder {
     implicit def intToStructuredTerm(value: Int): StructuredTerm =
       StructuredQuery(s"$value")
 
+    implicit def seqIntValueTuple2ToOrConditionStructuredTerm(values: Seq[(String, Int)]): StructuredTerm =
+      or(Nil, values.map(tuple => StructuredQuery(s"${tuple._1}:${tuple._2}")))
+
+    implicit def seqIntValueTuple2ToOptionOrConditionStructuredTerm(values: Seq[(String, Int)]): Option[StructuredTerm] = {
+      values match {
+        case Nil => None
+        case first :: Nil => Some(intValueTuple2ToField(first))
+        case many => Some(seqIntValueTuple2ToOrConditionStructuredTerm(values))
+      }
+    }
+
+    implicit def seqShortValueTuple2ToOrConditionStructuredTerm(values: Seq[(String, Short)]): StructuredTerm =
+      or(Nil, values.map(tuple => StructuredQuery(s"${tuple._1}:${tuple._2}")))
+
+    implicit def seqShortValueTuple2ToOptionOrConditionStructuredTerm(values: Seq[(String, Short)]): Option[StructuredTerm] = {
+      values match {
+        case Nil => None
+        case first :: Nil => Some(shortValueTuple2ToField(first))
+        case many => Some(seqShortValueTuple2ToOrConditionStructuredTerm(values))
+      }
+    }
+
     implicit def doubleToStructuredTerm(value: Double): StructuredTerm =
       StructuredQuery(s"$value")
 
