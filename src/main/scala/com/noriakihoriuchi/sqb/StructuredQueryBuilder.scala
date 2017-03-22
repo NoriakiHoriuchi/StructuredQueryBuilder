@@ -146,6 +146,9 @@ object StructuredQueryBuilder {
     implicit def intValueTuple2ToField(tuple2: (String, Int)): StructuredTerm =
       StructuredQuery(s"${tuple2._1}:${tuple2._2}")
 
+    implicit def shortValueTuple2ToField(tuple2: (String, Short)): StructuredTerm =
+      StructuredQuery(s"${tuple2._1}:${tuple2._2}")
+
     implicit def doubleValueTuple2ToField(tuple2: (String, Double)): StructuredTerm =
       StructuredQuery(s"${tuple2._1}:${tuple2._2}")
 
